@@ -21,6 +21,7 @@ angular
         templateUrl: 'home/home.html'
       })
       .state('login', {
+        url: '/login',
         resolve: {
           requireNoAuth: function($state, Auth) {
             return Auth.$requireAuth().then(function(auth) {
@@ -30,11 +31,11 @@ angular
             });
           }
         },
-        url: '/login',
         controller: 'AuthCtrl as authCtrl',
         templateUrl: 'auth/login.html'
       })
       .state('register', {
+        url: '/register',
         resolve: {
           requireNoAuth: function($state, Auth) {
             return Auth.$requireAuth().then(function(auth) {
@@ -44,9 +45,25 @@ angular
             });
           }
         },
-        url: '/register',
         controller: 'AuthCtrl as authCtrl',
         templateUrl: 'auth/register.html'
+      })
+      .state('profile', {
+        url: '/profile',
+        resolve: {
+          auth: function($state, Users, Auth) {
+            return Auth.$requireAuth().catch(function() {
+              $state.go('home');
+            });
+          },
+          profile: function(Users, Auth) {
+            return Auth.$requireAuth().then(function(auth) {
+              return Users.getProfile(auth.uid).$loaded();
+            });
+          }
+        },
+        controller: 'ProfileCtrl as profileCtrl',
+        templateUrl: 'users/profile.html'
       });
 
     $urlRouterProvider.otherwise('/');

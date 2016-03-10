@@ -17,15 +17,6 @@ angular
   .config(function ($stateProvider, $urlRouterProvider) {
     $stateProvider
       .state('home', {
-        resolve: {
-          requireNoAuth: function($state, Auth) {
-            return Auth.$requireAuth().then(function(auth) {
-              $state.go('home');
-            }, function(error) {
-              return;
-            });
-          }
-        },
         url: '/',
         templateUrl: 'home/home.html'
       })
@@ -44,6 +35,15 @@ angular
         templateUrl: 'auth/login.html'
       })
       .state('register', {
+        resolve: {
+          requireNoAuth: function($state, Auth) {
+            return Auth.$requireAuth().then(function(auth) {
+              $state.go('home');
+            }, function(error) {
+              return;
+            });
+          }
+        },
         url: '/register',
         controller: 'AuthCtrl as authCtrl',
         templateUrl: 'auth/register.html'

@@ -18,6 +18,7 @@ angular
     $stateProvider
       .state('home', {
         url: '/',
+        templateUrl: 'home/home.html',
         resolve: {
           requireNoAuth: function($state, Auth) {
             return Auth.$requireAuth().then(function(auth) {
@@ -26,11 +27,12 @@ angular
               return;
             });
           }
-        },
-        templateUrl: 'home/home.html'
+        }
       })
       .state('login', {
         url: '/login',
+        controller: 'AuthCtrl as authCtrl',
+        templateUrl: 'auth/login.html',
         resolve: {
           requireNoAuth: function($state, Auth) {
             return Auth.$requireAuth().then(function(auth) {
@@ -39,12 +41,12 @@ angular
               return;
             });
           }
-        },
-        controller: 'AuthCtrl as authCtrl',
-        templateUrl: 'auth/login.html'
+        }
       })
       .state('register', {
         url: '/register',
+        controller: 'AuthCtrl as authCtrl',
+        templateUrl: 'auth/register.html',
         resolve: {
           requireNoAuth: function($state, Auth) {
             return Auth.$requireAuth().then(function(auth) {
@@ -53,12 +55,12 @@ angular
               return;
             });
           }
-        },
-        controller: 'AuthCtrl as authCtrl',
-        templateUrl: 'auth/register.html'
+        }
       })
       .state('profile', {
         url: '/profile',
+        controller: 'ProfileCtrl as profileCtrl',
+        templateUrl: 'users/profile.html',
         resolve: {
           auth: function($state, Users, Auth) {
             return Auth.$requireAuth().catch(function() {
@@ -70,12 +72,12 @@ angular
               return Users.getProfile(auth.uid).$loaded();
             });
           }
-        },
-        controller: 'ProfileCtrl as profileCtrl',
-        templateUrl: 'users/profile.html'
+        }
       })
       .state('channels', {
         url: '/channels',
+        controller: 'ChannelsCtrl as channelsCtrl',
+        templateUrl: 'channels/index.html',
         resolve: {
           channels: function(Channels) {
             return Channels.$loaded();
@@ -93,9 +95,7 @@ angular
               $state.go('home');
             });
           }
-        },
-        controller: 'ChannelsCtrl as channelsCtrl',
-        templateUrl: 'channels/index.html'
+        }
       })
       .state('channels.create', {
         url: '/create',
@@ -104,6 +104,8 @@ angular
       })
       .state('channels.messages', {
         url: '/{channelId}/messages',
+        templateUrl: 'channels/messages.html',
+        controller: 'MessagesCtrl as messagesCtrl',
         resolve: {
           messages: function($stateParams, Messages) {
             return Messages.forChannel($stateParams.channelId).$loaded();
@@ -111,9 +113,22 @@ angular
           channelName: function($stateParams, channels) {
             return '#'+channels.$getRecord($stateParams.channelId).name;
           }
-        },
+        }
+      })
+      .state('channels.direct', {
+        url: '/{uid}/messages/direct',
         templateUrl: 'channels/messages.html',
-        controller: 'MessagesCtrl as messagesCtrl'
+        controller: 'MessagesCtrl as messagesCtrl',
+        resolve: {
+          messages: function($stateParams, Messages, profile) {
+            return Messages.forUsers($stateParams.uid, profile.$id).$loaded();
+          },
+          channelName: function($stateParams, Users) {
+            return Users.all.$loaded().then(function() {
+              return '@' + Users.getDisplayName($stateParams.uid);
+            });
+          }
+        }
       });
 
     $urlRouterProvider.otherwise('/');

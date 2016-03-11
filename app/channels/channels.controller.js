@@ -7,9 +7,16 @@ angular.module('angularfireSlackApp')
     channelsCtrl.getGravatar = Users.getGravatar;
     channelsCtrl.users = Users.all;
 
+    // set current user as online
+    Users.setOnline(profile.$id);
+
+    // wipes out online array when user logs out
     channelsCtrl.logout = function() {
-      Auth.$unauth();
-      $state.go('home');
+      channelsCtrl.profile.online = null;
+      channelsCtrl.profile.$save().then(function() {
+        Auth.$unauth();
+        $state.go('home');
+      });
     };
 
     channelsCtrl.newChannel = {

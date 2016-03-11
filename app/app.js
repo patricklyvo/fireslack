@@ -34,7 +34,7 @@ angular
         resolve: {
           requireNoAuth: function($state, Auth) {
             return Auth.$requireAuth().then(function(auth) {
-              $state.go('home');
+              $state.go('channels');
             }, function(error) {
               return;
             });
@@ -48,7 +48,7 @@ angular
         resolve: {
           requireNoAuth: function($state, Auth) {
             return Auth.$requireAuth().then(function(auth) {
-              $state.go('home');
+              $state.go('channels');
             }, function(error) {
               return;
             });
@@ -86,7 +86,7 @@ angular
                 if (profile.displayName) {
                   return profile;
                 } else {
-                  state.go('profile');
+                  $state.go('profile');
                 }
               });
             }, function(error) {
@@ -101,6 +101,19 @@ angular
         url: '/create',
         templateUrl: 'channels/create.html',
         controller: 'ChannelsCtrl as channelsCtrl'
+      })
+      .state('channels.messages', {
+        url: '/{channelId}/messages',
+        resolve: {
+          messages: function($stateParams, Messages) {
+            return Messages.forChannel($stateParams.channelId).$loaded();
+          },
+          channelName: function($stateParams, channels) {
+            return '#'+channels.$getRecord($stateParams.channelId).name;
+          }
+        },
+        templateUrl: 'channels/messages.html',
+        controller: 'MessagesCtrl as messagesCtrl'
       });
 
     $urlRouterProvider.otherwise('/');
